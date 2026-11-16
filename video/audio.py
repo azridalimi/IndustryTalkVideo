@@ -1,11 +1,8 @@
-"""Synthesises the soundtrack (drone, whooshes, ticks, hits) timed to the cuts in index.html.
-
-Usage: audio.py out.wav [--outro-only]   (--outro-only keeps just the end-card sounds, to lay after a music track)
-"""
+"""Synthesises the soundtrack (drone, whooshes, ticks, hits) timed to the cuts in index.html."""
 import sys, wave
 import numpy as np
 
-SR, DUR, MAIN = 48000, 12.4, 9.38
+SR, DUR = 48000, 9.38
 t = np.arange(int(SR * DUR)) / SR
 rng = np.random.default_rng(7)
 L = np.zeros_like(t); R = np.zeros_like(t)
@@ -20,7 +17,7 @@ def lowpass(x, cutoff):
     return y
 
 # Drone: A1 with a fifth and octave, slow movement, fades in and out.
-fade = np.clip(t / .8, 0, 1) * np.clip((DUR - t) / 1.0, 0, 1) * np.where(t > MAIN, .55, 1)
+fade = np.clip(t / .8, 0, 1) * np.clip((DUR - t) / .8, 0, 1)
 for f, g, ph in [(55, .30, 0), (82.41, .14, 1), (110, .12, 2), (164.81, .05, 3), (220, .035, 4)]:
     lfo = 1 + .25 * np.sin(2 * np.pi * .13 * t + ph)
     L += g * lfo * np.sin(2 * np.pi * f * t + ph) * fade
@@ -62,22 +59,7 @@ for f, g in [(440, .10), (659.25, .08), (880, .05)]:      # address reveal
     c = env(8.35, .01, .5) * np.sin(2 * np.pi * f * t) * g
     L += c; R += c
 
-# End card (9.38s on): soft hit as the name lands, snap for the bar, key ticks, closing chime.
-O = np.zeros_like(t)
-h = env(9.4, .005, .6) * np.sin(2 * np.pi * 55 * (t - 9.4) * (1 + .5 * np.exp(-(t - 9.4).clip(0) * 18)))
-O += .55 * h + env(9.4, .004, 1.2) * (np.sin(2 * np.pi * 220 * t) + .6 * np.sin(2 * np.pi * 329.63 * t)) * .07
-O += noise * np.exp(-((t - 9.85) / .12) ** 2) * .35
-for i in range(17):
-    t0 = 10.25 + .75 * i / 17
-    O += env(t0, .001, .012) * np.sin(2 * np.pi * (2100 + 300 * rng.random()) * t) * .09
-for f, g in [(440, .10), (659.25, .08), (880, .06), (1318.5, .03)]:
-    O += env(11.05, .01, .7) * np.sin(2 * np.pi * f * t) * g
-O *= np.clip((DUR - t) / .4, 0, 1)
-
-if '--outro-only' in sys.argv:
-    st = np.stack([O, O], 1) * .8
-else:
-    st = np.stack([L + O, R + O], 1); st = np.tanh(st * .9); st *= .89 / np.abs(st).max()
+st = np.stack([L, R], 1); st = np.tanh(st * .9); st *= .89 / np.abs(st).max()
 with wave.open(sys.argv[1], 'wb') as w:
     w.setnchannels(2); w.setsampwidth(2); w.setframerate(SR)
     w.writeframes((st * 32767).astype('<i2').tobytes())
