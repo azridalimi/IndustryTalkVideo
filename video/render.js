@@ -1,5 +1,5 @@
 // Renders index.html frame by frame and pipes the frames into ffmpeg.
-// Usage: node render.js [out.mp4] [--at=1.2,3.4]   (--at writes still PNGs instead of a video)
+// Usage: node render.js [out.mp4] [--fit=seconds] [--at=1.2,3.4]   (--at writes still PNGs instead of a video)
 const { chromium } = require('playwright');
 const { spawn } = require('child_process');
 const path = require('path');
@@ -8,6 +8,8 @@ const fs = require('fs');
 const FPS = 30;
 const args = process.argv.slice(2);
 const stills = (args.find(a => a.startsWith('--at=')) || '').slice(5);
+// --fit=9.38 plays the whole animation in that many seconds (e.g. to match a music track).
+const fit = Number((args.find(a => a.startsWith('--fit=')) || '').slice(6)) || 0;
 const outFile = args.find(a => !a.startsWith('--')) || path.join(__dirname, 'out', 'inotech-promo-silent.mp4');
 
 (async () => {
@@ -34,9 +36,10 @@ const outFile = args.find(a => !a.startsWith('--')) || path.join(__dirname, 'out
     { stdio: ['pipe', 'inherit', 'inherit'] });
   const done = new Promise((res, rej) => ff.on('close', c => (c ? rej(new Error('ffmpeg exit ' + c)) : res())));
 
-  const frames = Math.round(duration * FPS);
+  const length = fit || duration;
+  const frames = Math.round(length * FPS);
   for (let i = 0; i < frames; i++) {
-    await page.evaluate(t => window.seek(t), i / FPS);
+    await page.evaluate(t => window.seek(t), (i / FPS) * (duration / length));
     const buf = await page.screenshot({ type: 'jpeg', quality: 100 });
     if (!ff.stdin.write(buf)) await new Promise(r => ff.stdin.once('drain', r));
   }
