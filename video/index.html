@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Inotech Studio promo</title>
+<style>
+@font-face{font-family:"Space Grotesk";font-weight:500;src:url(assets/fonts/space-grotesk-latin-500-normal.woff2) format("woff2")}
+@font-face{font-family:"Space Grotesk";font-weight:700;src:url(assets/fonts/space-grotesk-latin-700-normal.woff2) format("woff2")}
+@font-face{font-family:"Geist Mono";font-weight:400;src:url(assets/fonts/geist-mono-latin-400-normal.woff2) format("woff2")}
+@font-face{font-family:"Inter";font-weight:400;src:url(assets/fonts/inter-latin-400-normal.woff2) format("woff2")}
+@font-face{font-family:"Inter";font-weight:500;src:url(assets/fonts/inter-latin-500-normal.woff2) format("woff2")}
+@font-face{font-family:"Inter";font-weight:600;src:url(assets/fonts/inter-latin-600-normal.woff2) format("woff2")}
+
+:root{
+  --teal:#19b8a6; --teal-deep:#0e8c7f; --ink:#f6f7f8; --mute:#8b9094; --dim:#5a5f63;
+  --panel:#0c0d0e; --line:rgba(255,255,255,.10);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1920px;height:1080px;overflow:hidden;background:#000}
+body{font-family:Inter,system-ui,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased}
+#stage{position:relative;width:1920px;height:1080px;overflow:hidden;background:#000}
+.scene{position:absolute;inset:0;opacity:0;will-change:opacity,filter}
+.wash{position:absolute;inset:0;pointer-events:none}
+.cam{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0;will-change:transform}
+.grotesk{font-family:"Space Grotesk",sans-serif}
+.mono{font-family:"Geist Mono",monospace;letter-spacing:.14em;text-transform:uppercase}
+
+/* ---------- 1 · nav ---------- */
+#nav{position:absolute;left:510px;top:478px;width:900px;height:124px;border-radius:40px;background:var(--panel);
+  border:1.5px solid var(--line);display:flex;align-items:center;padding:0 22px 0 44px;gap:54px;
+  box-shadow:0 0 120px 20px rgba(255,255,255,.07),0 0 0 1px rgba(0,0,0,.6)}
+#nav .mark{width:58px;height:58px;flex:none}
+#nav span{font-size:31px;font-weight:500;color:#c9cdd0;white-space:nowrap}
+#nav .quote{margin-left:auto;background:var(--ink);color:#0a0a0a;font-weight:600;padding:22px 38px;border-radius:999px;font-size:29px}
+#navglow{position:absolute;left:433px;top:419px;width:300px;height:300px;border-radius:50%;opacity:0;
+  background:radial-gradient(circle,rgba(25,184,166,.55),rgba(25,184,166,0) 62%)}
+
+/* ---------- 2 · product card ---------- */
+#card{position:absolute;left:460px;top:250px;width:1000px;height:580px;border-radius:28px;background:var(--panel);
+  border:1.5px solid var(--line);padding:44px 48px;box-shadow:0 0 160px 30px rgba(255,255,255,.06)}
+#card .head{display:flex;align-items:center;gap:20px}
+#card .head .mark{width:44px;height:44px}
+#card .head h2{font-size:40px;font-weight:700;letter-spacing:-.01em}
+#card .head .dots{margin-left:auto;color:var(--dim);font-size:34px;letter-spacing:.1em}
+#card .url{margin-top:10px;font-size:22px;color:var(--mute)}
+#card .row{margin-top:34px;display:flex;justify-content:space-between;align-items:center;font-size:21px;color:#c9cdd0;
+  padding-bottom:22px;border-bottom:1.5px solid var(--line)}
+#card .stock{display:flex;align-items:center;gap:12px}
+#card .stock i{width:11px;height:11px;border-radius:50%;background:var(--teal);box-shadow:0 0 14px 3px rgba(25,184,166,.8)}
+#card .body{margin-top:30px;display:flex;gap:44px}
+#card .thumb{width:300px;height:300px;border-radius:16px;overflow:hidden;border:1.5px solid var(--line);flex:none;position:relative}
+#card .thumb img{width:100%;height:100%;object-fit:cover;filter:brightness(.82) contrast(1.06)}
+#card .thumb b{position:absolute;left:14px;top:14px;font:400 14px "Geist Mono",monospace;color:#33383b;background:rgba(255,255,255,.75);
+  padding:5px 10px;border-radius:999px}
+#card .meta{flex:1;display:flex;flex-direction:column}
+#card .meta .mono{font-size:16px;color:var(--teal)}
+#card .meta h3{font-size:44px;font-weight:700;margin-top:12px;letter-spacing:-.01em}
+#card .meta p{font-size:22px;color:var(--mute);margin-top:12px}
+#card .buy{margin-top:auto;display:flex;align-items:center;justify-content:space-between;padding-top:22px;border-top:1.5px solid var(--line)}
+#card .price{font:400 34px "Geist Mono",monospace}
+#card .add{border:1.5px solid rgba(255,255,255,.22);border-radius:999px;padding:14px 28px;font-size:22px;font-weight:500}
+
+/* ---------- 3 · ring ---------- */
+#ringwrap{position:absolute;left:660px;top:120px;width:600px}
+#ringwrap .mono{font-size:19px;color:var(--mute)}
+#ringwrap h2{font-size:46px;font-weight:500;margin-top:12px}
+#ring{position:relative;width:320px;height:320px;margin:54px 0 0 0}
+#ring svg{position:absolute;inset:0;overflow:visible}
+#ring .num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:96px;font-weight:500;
+  font-family:"Space Grotesk",sans-serif}
+#ringwrap h3{font-size:44px;font-weight:500;margin-top:48px}
+#ringwrap .ok{display:flex;align-items:center;gap:16px;font-size:27px;color:#c9cdd0;margin-top:18px}
+#ringwrap .ok i{width:15px;height:15px;border-radius:50%;background:var(--teal);box-shadow:0 0 16px 4px rgba(25,184,166,.8)}
+#ringwrap p{font-size:25px;line-height:1.45;color:var(--mute);margin-top:30px}
+
+/* ---------- 4 · quote box ---------- */
+#ask h2{position:absolute;left:0;top:258px;width:1920px;text-align:center;font-size:58px;font-weight:500;letter-spacing:-.01em}
+#box{position:absolute;left:480px;top:372px;width:960px;height:236px;border-radius:26px;background:var(--panel);
+  border:1.5px solid var(--line);box-shadow:0 0 150px 20px rgba(255,255,255,.06)}
+#typed{position:absolute;left:36px;top:34px;font-size:34px;color:var(--ink);white-space:pre}
+#caret{display:inline-block;width:3px;height:38px;background:var(--teal);margin-left:4px;vertical-align:-7px}
+#box .mat{position:absolute;left:36px;bottom:30px;display:flex;align-items:center;gap:14px;font-size:24px;color:var(--mute)}
+#box .mat svg{width:24px;height:24px}
+#send{position:absolute;right:26px;bottom:24px;width:68px;height:68px;border-radius:18px;background:var(--ink);
+  display:flex;align-items:center;justify-content:center;box-shadow:0 0 40px 6px rgba(255,255,255,.18)}
+#send svg{width:34px;height:34px}
+#chips{position:absolute;left:480px;top:640px;width:960px;display:flex;gap:18px;justify-content:center}
+#chips span{border:1.5px solid var(--line);border-radius:999px;padding:13px 26px;font-size:23px;color:#b6babd;background:#0a0b0c;white-space:nowrap}
+#ask .foot{position:absolute;left:0;top:756px;width:1920px;text-align:center;font-size:19px;color:var(--dim)}
+
+/* ---------- 5 · cta ---------- */
+#cta{position:absolute;left:660px;top:455px;width:600px;height:170px;border-radius:38px;background:var(--ink);color:#0a0a0a;
+  display:flex;align-items:center;justify-content:center;gap:22px;font-size:68px;font-weight:500;
+  box-shadow:0 0 140px 40px rgba(255,255,255,.28),0 0 40px 6px rgba(255,255,255,.5)}
+#cta svg{width:60px;height:60px}
+
+/* ---------- 6 · outro ---------- */
+#logo{position:absolute;left:810px;top:390px;width:300px;height:300px}
+#logoglow{position:absolute;left:560px;top:140px;width:800px;height:800px;border-radius:50%;
+  background:radial-gradient(circle,rgba(25,184,166,.34),rgba(25,184,166,0) 60%)}
+#word{position:absolute;left:0;top:470px;width:1920px;text-align:center}
+#word .n{font-size:110px;font-weight:700;letter-spacing:-.02em}
+#word .s{font-size:26px;color:var(--mute);margin-top:6px;letter-spacing:.42em;padding-left:.42em;font-family:"Geist Mono",monospace}
+#site{position:absolute;left:0;top:502px;width:1920px;text-align:center;font-size:64px;font-weight:500;
+  text-shadow:0 0 40px rgba(255,255,255,.45)}
+</style>
+</head>
+<body>
+<div id="stage">
+
+  <!-- 1 · nav -->
+  <div class="scene" id="s1">
+    <div class="cam">
+      <div id="navglow"></div>
+      <div id="nav">
+        <svg class="mark" viewBox="0 0 64 64" fill="none" stroke-width="10"><path d="M32.87 20.04A18 18 0 0 0 24.13 54.96" stroke="#f6f7f8"/><path d="M39.87 9.04A18 18 0 0 1 31.13 43.96" stroke="#19b8a6"/></svg>
+        <span>Shop</span><span>3D Printing</span><span>Contact</span>
+        <span class="quote">Get a quote</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2 · product card -->
+  <div class="scene" id="s2">
+    <div class="cam">
+      <div id="card">
+        <div class="head">
+          <svg class="mark" viewBox="0 0 64 64" fill="none" stroke-width="10"><path d="M32.87 20.04A18 18 0 0 0 24.13 54.96" stroke="#f6f7f8"/><path d="M39.87 9.04A18 18 0 0 1 31.13 43.96" stroke="#19b8a6"/></svg>
+          <h2 class="grotesk">Inotech Shop</h2><span class="dots">···</span>
+        </div>
+        <div class="url">inotechstudio.com/shop</div>
+        <div class="row"><span>Maker supplies, kept in stock locally</span><span class="stock"><i></i>In stock</span></div>
+        <div class="body">
+          <div class="thumb"><img src="assets/pla-teal.jpg" alt=""><b>Sample</b></div>
+          <div class="meta">
+            <div class="mono">Filament</div>
+            <h3 class="grotesk">PLA Filament · Teal</h3>
+            <p>1 kg, 1.75 mm PLA filament</p>
+            <p style="margin-top:6px">Shipped across Malaysia</p>
+            <div class="buy"><span class="price">RM 59.00</span><span class="add">+&nbsp; Add to cart</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3 · printability ring -->
+  <div class="scene" id="s3">
+    <div class="wash" id="wash3" style="background:radial-gradient(ellipse 1500px 800px at 50% -10%,rgba(25,184,166,.34),rgba(25,184,166,0) 70%)"></div>
+    <div class="cam">
+      <div id="ringwrap">
+        <div class="mono">3D Printing Service</div>
+        <h2>Printability check</h2>
+        <div id="ring">
+          <svg viewBox="0 0 320 320">
+            <defs><filter id="glow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="14"/></filter></defs>
+            <circle cx="160" cy="160" r="132" stroke="rgba(25,184,166,.14)" stroke-width="22" fill="none"/>
+            <circle id="arcglow" cx="160" cy="160" r="132" stroke="#2ee6cf" stroke-width="26" fill="none" stroke-linecap="round" filter="url(#glow)" transform="rotate(-90 160 160)"/>
+            <circle id="arc" cx="160" cy="160" r="132" stroke="#5df0dc" stroke-width="22" fill="none" stroke-linecap="round" transform="rotate(-90 160 160)"/>
+          </svg>
+          <div class="num" id="num">0</div>
+        </div>
+        <h3>Engineer-reviewed</h3>
+        <div class="ok"><i></i>Checked before we quote</div>
+        <p>Every file is checked for printability.<br>No surprises mid-job.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4 · quote box -->
+  <div class="scene" id="s4">
+    <div class="cam" id="ask">
+      <h2>Tell us what you're building.</h2>
+      <div id="box">
+        <div id="typed"><span id="txt"></span><span id="caret"></span></div>
+        <div class="mat">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2 3 7v10l9 5 9-5V7z"/><path d="m3 7 9 5 9-5M12 12v10"/></svg>
+          STL or 3MF &nbsp;⌄
+        </div>
+        <div id="send"><svg viewBox="0 0 24 24" fill="none" stroke="#0a0a0a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5.5 11.5 12 5l6.5 6.5"/></svg></div>
+      </div>
+      <div id="chips"><span>Choose material</span><span>Finishing</span><span>Tracked courier</span><span>Collect at our lab</span></div>
+      <div class="foot">Quotation over WhatsApp within one working day</div>
+    </div>
+  </div>
+
+  <!-- 5 · cta -->
+  <div class="scene" id="s5">
+    <div class="cam">
+      <div id="cta">Get a quote
+        <svg viewBox="0 0 24 24" fill="none" stroke="#0a0a0a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 18 18 6M8 6h10v10"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6 · outro -->
+  <div class="scene" id="s6">
+    <div class="cam">
+      <div id="logoglow"></div>
+      <svg id="logo" viewBox="0 0 64 64" fill="none" stroke-width="10"><path d="M32.87 20.04A18 18 0 0 0 24.13 54.96" stroke="#f6f7f8"/><path d="M39.87 9.04A18 18 0 0 1 31.13 43.96" stroke="#19b8a6"/></svg>
+      <div id="word"><div class="n grotesk">Print it. <span style="color:var(--teal)">Build it.</span></div></div>
+      <div id="site">inotechstudio.com</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const DURATION = 13.6;
+const $ = id => document.getElementById(id);
+const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+const io = x => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;      // cubic in-out
+const out = x => 1 - Math.pow(1 - x, 4);                                        // quart out
+const lin = x => x;
+const p = (t, a, b, e = io) => e(clamp((t - a) / (b - a)));
+
+// Keyframe track: [[time, value, easeIntoThisKey], ...]
+function track(keys, t) {
+  if (t <= keys[0][0]) return keys[0][1];
+  for (let i = 1; i < keys.length; i++) {
+    const [t1, v1, e] = keys[i], [t0, v0] = keys[i - 1];
+    if (t <= t1) return v0 + (v1 - v0) * (e || io)((t - t0) / (t1 - t0));
+  }
+  return keys[keys.length - 1][1];
+}
+
+// Each scene: time window, plus camera tracks (cx, cy = world point held at screen centre; s = zoom).
+const scenes = [
+  { id: 's1', from: 0, to: 2.75,
+    cx: [[0, 1180, 0], [0.9, 960, out], [1.55, 960], [2.25, 583], [2.75, 583]],
+    cy: [[0, 600, 0], [0.9, 540, out], [1.55, 540], [2.25, 540], [2.75, 540]],
+    s:  [[0, 1.7, 0], [0.9, 1.3, out], [1.55, 1.36, lin], [2.25, 5.4], [2.75, 6.0, lin]],
+    blur: [[0, 26, 0], [0.75, 0, out], [1.55, 0], [1.9, 9], [2.25, 0], [2.55, 0], [2.75, 22]],
+    o: [[0, 0, 0], [0.5, 1, lin], [2.6, 1], [2.75, 0, lin]] },
+  { id: 's2', from: 2.6, to: 5.6,
+    cx: [[2.6, 700, 0], [3.1, 720, out], [3.7, 760, lin], [4.5, 960], [5.6, 960]],
+    cy: [[2.6, 330, 0], [3.1, 330, out], [3.7, 345, lin], [4.5, 540], [5.6, 540]],
+    s:  [[2.6, 4.6, 0], [3.1, 4.0, out], [3.7, 3.85, lin], [4.5, 1.3], [5.6, 1.22, lin]],
+    blur: [[2.6, 24, 0], [3.05, 0, out], [3.7, 0], [4.05, 12], [4.5, 0], [5.35, 0], [5.6, 20]],
+    o: [[2.6, 0, 0], [2.85, 1, lin], [5.4, 1], [5.6, 0, lin]] },
+  { id: 's3', from: 5.45, to: 8.15,
+    cx: [[5.45, 820, 0], [6.0, 820, out], [7.0, 960], [8.15, 960]],
+    cy: [[5.45, 425, 0], [6.0, 428, out], [7.0, 520], [8.15, 520]],
+    s:  [[5.45, 3.0, 0], [6.0, 2.5, out], [7.0, 1.22], [8.15, 1.15, lin]],
+    blur: [[5.45, 22, 0], [5.85, 0, out], [6.3, 0], [6.6, 8], [7.0, 0], [7.9, 0], [8.15, 20]],
+    o: [[5.45, 0, 0], [5.7, 1, lin], [7.95, 1], [8.15, 0, lin]] },
+  { id: 's4', from: 8.0, to: 10.9,
+    cx: [[8.0, 1380, 0], [8.5, 1380, out], [9.2, 960], [9.6, 960], [10.4, 800], [10.9, 800]],
+    cy: [[8.0, 550, 0], [8.5, 550, out], [9.2, 520], [9.6, 520], [10.4, 440], [10.9, 440]],
+    s:  [[8.0, 7.0, 0], [8.5, 6.0, out], [9.2, 1.3], [9.6, 1.33, lin], [10.4, 2.15], [10.9, 2.3, lin]],
+    blur: [[8.0, 20, 0], [8.35, 0, out], [8.6, 0], [8.9, 12], [9.2, 0], [10.65, 0], [10.9, 20]],
+    o: [[8.0, 0, 0], [8.2, 1, lin], [10.75, 1], [10.9, 0, lin]] },
+  { id: 's5', from: 10.75, to: 12.05,
+    cx: [[10.75, 960, 0]], cy: [[10.75, 540, 0]],
+    s:  [[10.75, 0.22, 0], [11.3, 0.9, out], [12.05, 1.0, lin]],
+    blur: [[10.75, 26, 0], [11.25, 0, out], [11.85, 0], [12.05, 22]],
+    o: [[10.75, 0, 0], [10.95, 1, lin], [11.9, 1], [12.05, 0, lin]] },
+  { id: 's6', from: 11.9, to: DURATION,
+    cx: [[11.9, 960, 0]], cy: [[11.9, 540, 0]],
+    s:  [[11.9, 0.8, 0], [12.4, 1.0, out], [DURATION, 1.06, lin]],
+    blur: [[11.9, 20, 0], [12.3, 0, out]],
+    o: [[11.9, 0, 0], [12.15, 1, lin], [13.3, 1], [DURATION, 0, lin]] },
+];
+
+const MESSAGE = 'A snap-fit enclosure for my ESP32 board';
+const CIRC = 2 * Math.PI * 132;
+
+window.seek = function (t) {
+  for (const sc of scenes) {
+    const el = $(sc.id), cam = el.querySelector('.cam');
+    if (t < sc.from || t > sc.to) { el.style.opacity = 0; el.style.visibility = 'hidden'; continue; }
+    const s = track(sc.s, t), cx = track(sc.cx, t), cy = track(sc.cy, t), b = track(sc.blur, t);
+    el.style.visibility = 'visible';
+    el.style.opacity = track(sc.o, t);
+    el.style.filter = b > 0.05 ? `blur(${b.toFixed(2)}px)` : 'none';
+    cam.style.transform = `translate(${960 - cx * s}px,${540 - cy * s}px) scale(${s})`;
+  }
+
+  // 1 · logo mark lights up as the camera pushes in
+  $('navglow').style.opacity = p(t, 1.7, 2.3);
+
+  // 3 · ring fills and counts to 100
+  const k = p(t, 5.6, 7.15, x => 1 - Math.pow(1 - x, 3));
+  $('arc').style.strokeDasharray = $('arcglow').style.strokeDasharray = `${Math.max(.01, k * CIRC)} ${CIRC}`;
+  $('num').textContent = Math.round(k * 100);
+  $('wash3').style.opacity = p(t, 5.6, 7.0);
+
+  // 4 · message types itself
+  const n = Math.floor(clamp((t - 9.15) / 1.35) * MESSAGE.length);
+  $('txt').textContent = MESSAGE.slice(0, n);
+  $('caret').style.opacity = n > 0 && n < MESSAGE.length ? 1 : (Math.floor(t * 2.5) % 2 ? 1 : .15);
+
+  // 6 · mark → tagline → address
+  const g = p(t, 12.5, 12.68, lin), a = p(t, 12.66, 12.86, lin), c = p(t, 13.05, 13.22, lin);
+  $('logo').style.opacity = $('logoglow').style.opacity = 1 - g;
+  $('logo').style.transform = `scale(${1 + .08 * p(t, 11.9, 12.8, lin)})`;
+  $('logo').style.transformOrigin = '50% 50%';
+  $('word').style.opacity = a * (1 - c);
+  $('word').style.filter = `blur(${(1 - a) * 12 + c * 12}px)`;
+  $('site').style.opacity = c;
+  $('site').style.filter = `blur(${(1 - c) * 12}px)`;
+};
+
+window.DURATION = DURATION;
+// Live preview when opened in a browser; the renderer passes ?render and drives seek() itself.
+if (!location.search.includes('render')) {
+  const t0 = performance.now();
+  (function loop() { seek(((performance.now() - t0) / 1000) % DURATION); requestAnimationFrame(loop); })();
+} else seek(0);
+</script>
+</body>
+</html>
