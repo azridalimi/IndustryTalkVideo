@@ -7,7 +7,7 @@ A 13.7 s, 1920×1080, 30 fps motion piece built from the UI and copy of inotechs
 - `audio.py` — synthesises a soundtrack for the animation (needs numpy), timed to the cuts.
 - `assets/outro.mp4` — the logo sting appended at the end, with its own sound.
 - `build.sh` — renders the animation, adds sound and appends the outro.
-- `out/inotech-promo.mp4` — the finished video with the synthesised soundtrack.
+- `out/inotech-promo.mp4` — the finished video with the synthesised soundtrack; `out/inotech-promo-9x16.mp4` is the same video centred on a black 1080×1920 canvas.
 
 Rebuild:
 

@@ -20,3 +20,8 @@ ffmpeg -v error -y -i out/main.mp4 -i "$music" -i assets/outro.mp4 -filter_compl
   -map "[v]" -map "[a]" -c:v libx264 -preset slow -crf 17 -pix_fmt yuv420p -c:a aac -b:a 192k -movflags +faststart "$out"
 rm out/main.mp4
 echo "wrote $out"
+# Vertical 9:16 version: the same video centred on a black 1080x1920 canvas.
+tall="${out%.mp4}-9x16.mp4"
+ffmpeg -v error -y -i "$out" -vf "scale=1080:-2:flags=lanczos,pad=1080:1920:0:(oh-ih)/2:black" \
+  -c:v libx264 -preset slow -crf 17 -pix_fmt yuv420p -c:a copy -movflags +faststart "$tall"
+echo "wrote $tall"
