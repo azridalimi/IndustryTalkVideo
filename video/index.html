@@ -103,6 +103,21 @@ body{font-family:Inter,system-ui,sans-serif;color:var(--ink);-webkit-font-smooth
 #word .s{font-size:26px;color:var(--mute);margin-top:6px;letter-spacing:.42em;padding-left:.42em;font-family:"Geist Mono",monospace}
 #site{position:absolute;left:0;top:502px;width:1920px;text-align:center;font-size:64px;font-weight:500;
   text-shadow:0 0 40px rgba(255,255,255,.45)}
+
+/* ---------- 7 · end card ---------- */
+#s7{background:#0b0d0e}
+#endmark{position:absolute;left:880px;top:268px;width:160px;height:160px}
+#endname{position:absolute;left:0;top:446px;width:1920px;text-align:center}
+#endname .n{font-size:92px;font-weight:700;letter-spacing:-.02em;line-height:1}
+#endname .s{font:400 26px "Geist Mono",monospace;letter-spacing:.5em;padding-left:.5em;color:var(--mute);margin-top:14px}
+#bar{position:absolute;left:610px;top:668px;width:700px;height:104px}
+#bar i{position:absolute;inset:0;border-radius:16px}
+#barA{background:var(--teal)} #barB{background:#0e8c7f}
+#barC{background:var(--ink)}
+#barfield{position:absolute;left:14px;top:14px;right:100px;bottom:14px;border-radius:9px;background:#0b0d0e;
+  display:flex;align-items:center;padding-left:22px;gap:20px;font-size:36px;font-weight:500;color:var(--ink);white-space:pre}
+#barfield svg{width:36px;height:36px;flex:none}
+#barlogo{position:absolute;right:22px;top:24px;width:56px;height:56px}
 </style>
 </head>
 <body>
@@ -202,10 +217,29 @@ body{font-family:Inter,system-ui,sans-serif;color:var(--ink);-webkit-font-smooth
       <div id="site">inotechstudio.com</div>
     </div>
   </div>
+
+  <!-- 7 · end card -->
+  <div class="scene" id="s7">
+    <div class="cam">
+      <svg id="endmark" viewBox="0 0 64 64" fill="none" stroke-width="10"><path d="M32.87 20.04A18 18 0 0 0 24.13 54.96" stroke="#f6f7f8"/><path d="M39.87 9.04A18 18 0 0 1 31.13 43.96" stroke="#19b8a6"/></svg>
+      <div id="endname"><div class="n grotesk">inotech</div><div class="s">STUDIO</div></div>
+      <div id="bar">
+        <i id="barA"></i><i id="barB"></i><i id="barC"></i>
+        <div id="barin">
+          <div id="barfield">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#f6f7f8" stroke-width="2.4" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m20 20-4.6-4.6"/></svg>
+            <span id="endtxt"></span>
+          </div>
+          <svg id="barlogo" viewBox="0 0 64 64" fill="none" stroke-width="10"><path d="M32.87 20.04A18 18 0 0 0 24.13 54.96" stroke="#0a0a0a"/><path d="M39.87 9.04A18 18 0 0 1 31.13 43.96" stroke="#0e8c7f"/></svg>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
-const DURATION = 9.38;   // cut-for-cut with the reference clip and its track
+const MAIN = 9.38;       // cut-for-cut with the reference clip and its track
+const DURATION = 12.4;   // plus the brand end card
 const $ = id => document.getElementById(id);
 const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
 const io = x => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;      // cubic in-out
@@ -254,11 +288,16 @@ const scenes = [
     s:  [[6.55, 0.22, 0], [6.8, 0.9, out], [7.35, 1.0, lin]],
     blur: [[6.55, 26, 0], [6.8, 0, out], [7.2, 0], [7.35, 18]],
     o: [[6.55, 0, 0], [6.65, 1, lin], [7.25, 1], [7.35, 0, lin]] },
-  { id: 's6', from: 7.3, to: DURATION,
+  { id: 's6', from: 7.3, to: MAIN,
     cx: [[7.3, 960, 0]], cy: [[7.3, 540, 0]],
-    s:  [[7.3, 0.8, 0], [7.55, 1.0, out], [DURATION, 1.06, lin]],
+    s:  [[7.3, 0.8, 0], [7.55, 1.0, out], [MAIN, 1.06, lin]],
     blur: [[7.3, 20, 0], [7.5, 0, out]],
     o: [[7.3, 0, 0], [7.42, 1, lin], [9.0, 1], [9.3, 0, lin]] },
+  { id: 's7', from: 9.3, to: DURATION,
+    cx: [[9.3, 960, 0]], cy: [[9.3, 540, 0]],
+    s:  [[9.3, 1, 0], [DURATION, 1.03, lin]],
+    blur: [[9.3, 0, 0]],
+    o: [[9.3, 0, 0], [9.45, 1, lin], [12.1, 1], [DURATION, 0, lin]] },
 ];
 
 const MESSAGE = 'A snap-fit enclosure for my ESP32 board';
@@ -298,6 +337,22 @@ window.seek = function (t) {
   $('word').style.filter = `blur(${(1 - a) * 12 + c * 12}px)`;
   $('site').style.opacity = c;
   $('site').style.filter = `blur(${(1 - c) * 12}px)`;
+
+
+  // 7 · end card: mark and name settle, the bar snaps together, the address types in
+  const m = p(t, 9.35, 9.7, out);
+  for (const id of ['endmark', 'endname']) {
+    $(id).style.opacity = m;
+    $(id).style.transform = `translateY(${(1 - m) * 26}px) scale(${.9 + .1 * m})`;
+  }
+  const b = p(t, 9.7, 10.05, out), d = (1 - b) * 46;
+  $('bar').style.opacity = p(t, 9.7, 9.8, lin);
+  $('bar').style.transform = `scaleX(${.35 + .65 * b})`;
+  $('barA').style.transform = `translate(${-d - 6 * b}px,${-d * .5 - 5 * b}px)`;
+  $('barB').style.transform = `translate(${d + 6 * b}px,${d * .5 + 5 * b}px)`;
+  $('barin').style.opacity = p(t, 9.95, 10.1, lin);
+  const URL = 'inotechstudio.com';
+  $('endtxt').textContent = URL.slice(0, Math.floor(clamp((t - 10.25) / 0.75) * URL.length));
 };
 
 window.DURATION = DURATION;
