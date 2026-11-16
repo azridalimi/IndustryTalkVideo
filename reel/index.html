@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Faculty of Computing, UTM — 60s reel</title>
+<style>
+  :root {
+    --bg: #12050a;
+    --maroon: #8c1638;
+    --maroon-hi: #c2274f;
+    --gold: #f4b942;
+    --cream: #fbf1e3;
+    --dim: rgba(251, 241, 227, .55);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--bg); }
+  body { font-family: "Inter Display", "Inter", sans-serif; color: var(--cream); }
+  #stage { position: relative; width: 1080px; height: 1920px; overflow: hidden; }
+  canvas#bg { position: absolute; inset: 0; }
+  #flash { position: absolute; inset: 0; background: var(--gold); opacity: 0; mix-blend-mode: screen; }
+  #fade { position: absolute; inset: 0; background: #000; opacity: 0; }
+
+  .scene { position: absolute; inset: 0; padding: 0 84px; display: flex; flex-direction: column; justify-content: center; opacity: 0; }
+  .mono { font-family: "JetBrains Mono", monospace; }
+  .label { font-family: "JetBrains Mono", monospace; font-weight: 600; font-size: 34px; letter-spacing: .18em; text-transform: uppercase; color: var(--gold); }
+  .mask { display: block; overflow: hidden; padding-bottom: .08em; margin-bottom: -.08em; }
+  .mask > span { display: block; }
+  .gold { color: var(--gold); }
+  .rule { height: 8px; width: 220px; background: var(--gold); transform-origin: left center; }
+
+  /* chrome: segment progress + tag */
+  #chrome { position: absolute; left: 84px; right: 84px; top: 236px; }
+  #segs { display: flex; gap: 10px; }
+  #segs i { flex: 1; height: 6px; border-radius: 3px; background: rgba(251,241,227,.18); overflow: hidden; }
+  #segs i b { display: block; height: 100%; width: 0; background: var(--cream); }
+  #tag { margin-top: 22px; display: flex; justify-content: space-between; font-family: "JetBrains Mono", monospace; font-size: 26px; letter-spacing: .14em; color: var(--dim); }
+
+  /* 1 hook */
+  #hook .q { font-weight: 800; font-size: 104px; line-height: 1.06; letter-spacing: -.03em; min-height: 560px; }
+  #hook .prompt { font-size: 40px; color: var(--gold); margin-bottom: 40px; }
+  .cursor { display: inline-block; width: .5em; height: .9em; background: var(--gold); vertical-align: -0.08em; margin-left: .06em; }
+
+  /* 2 title */
+  #title h1 { font-weight: 900; font-size: 146px; line-height: .92; letter-spacing: -.045em; text-transform: uppercase; }
+  #title .rule { margin: 56px 0 44px; }
+  #title .uni { font-weight: 600; font-size: 60px; letter-spacing: -.02em; }
+  #title .loc { margin-top: 22px; font-size: 32px; letter-spacing: .16em; color: var(--dim); }
+
+  /* 3 story */
+  #story .year { font-weight: 900; font-size: 380px; line-height: .85; letter-spacing: -.06em; color: var(--gold); margin: 26px 0 30px -14px; font-variant-numeric: tabular-nums; }
+  #story .lead { font-weight: 700; font-size: 66px; line-height: 1.08; letter-spacing: -.03em; }
+  #story .tl { margin-top: 70px; border-left: 4px solid rgba(244,185,66,.4); padding-left: 40px; display: grid; gap: 36px; }
+  #story .tl div { position: relative; font-size: 42px; font-weight: 500; line-height: 1.2; }
+  #story .tl div::before { content: ""; position: absolute; left: -53px; top: 14px; width: 22px; height: 22px; border-radius: 50%; background: var(--gold); }
+  #story .tl b { font-family: "JetBrains Mono", monospace; color: var(--gold); font-weight: 700; margin-right: 18px; }
+
+  /* 4 programmes */
+  #prog { padding-top: 340px; padding-bottom: 250px; }
+  #prog h2 { font-weight: 900; font-size: 104px; line-height: .95; letter-spacing: -.045em; margin: 20px 0 36px; }
+  #prog .rows { display: grid; gap: 14px; }
+  .row { position: relative; border-radius: 28px; padding: 22px 36px 22px 150px; background: rgba(251,241,227,.06); border: 2px solid rgba(251,241,227,.12); }
+  .row .n { position: absolute; left: 36px; top: 22px; font-family: "JetBrains Mono", monospace; font-weight: 700; font-size: 54px; color: var(--gold); }
+  .row .t { font-weight: 800; font-size: 48px; line-height: 1.08; letter-spacing: -.025em; }
+  .row .d { margin-top: 8px; font-size: 31px; color: var(--dim); font-weight: 500; }
+  .row .hl { position: absolute; inset: -2px; border-radius: 28px; background: var(--maroon); border: 2px solid var(--gold); opacity: 0; z-index: -1; }
+  .row { z-index: 0; }
+
+  /* 5 stats */
+  .stat .big { font-weight: 900; font-size: 400px; line-height: .86; letter-spacing: -.06em; color: var(--gold); margin: 30px 0 40px -16px; font-variant-numeric: tabular-nums; }
+  .stat .what { font-weight: 800; font-size: 84px; line-height: 1.03; letter-spacing: -.035em; }
+  .stat .src { margin-top: 44px; font-size: 32px; line-height: 1.45; letter-spacing: .06em; color: var(--dim); }
+
+  /* 6 departments */
+  #dept h2 { font-weight: 900; font-size: 126px; line-height: .92; letter-spacing: -.045em; margin: 26px 0 64px; }
+  #dept .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  #dept .card { height: 330px; border-radius: 32px; padding: 34px; display: flex; flex-direction: column; justify-content: space-between; background: rgba(251,241,227,.07); border: 2px solid rgba(251,241,227,.14); }
+  #dept .card:nth-child(1), #dept .card:nth-child(4) { background: var(--maroon); border-color: var(--maroon-hi); }
+  #dept .card .k { font-family: "JetBrains Mono", monospace; font-size: 36px; font-weight: 700; color: var(--gold); }
+  #dept .card .v { font-weight: 800; font-size: 48px; line-height: 1.06; letter-spacing: -.025em; }
+
+  /* 7 slam */
+  .slam { align-items: center; text-align: center; padding: 0 40px; }
+  .slam span { font-weight: 900; font-size: 190px; letter-spacing: -.05em; text-transform: uppercase; line-height: 1; }
+  .slam.inv { background: var(--gold); }
+  .slam.inv span { color: var(--bg); }
+  .slam.mar { background: var(--maroon); }
+
+  /* 8 payoff + end card */
+  #payoff h2 { font-weight: 900; font-size: 168px; line-height: .93; letter-spacing: -.05em; }
+  #payoff .ok { margin-top: 60px; font-size: 40px; color: var(--gold); }
+  #end { align-items: flex-start; }
+  #end .fc { font-weight: 900; font-size: 132px; line-height: .93; letter-spacing: -.045em; text-transform: uppercase; }
+  #end .rule { margin: 52px 0 40px; }
+  #end .uni { font-weight: 600; font-size: 56px; letter-spacing: -.02em; }
+  #end .tagline { margin-top: 18px; font-size: 44px; font-weight: 500; color: var(--dim); }
+  #end .url { margin-top: 70px; display: inline-block; padding: 26px 44px; border-radius: 999px; background: var(--gold); color: var(--bg); font-family: "JetBrains Mono", monospace; font-weight: 700; font-size: 46px; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <canvas id="bg" width="1080" height="1920"></canvas>
+
+  <!-- 1 · hook 0–4 -->
+  <section class="scene" id="hook" data-in="0" data-out="3.7">
+    <div class="mono prompt" data-a="up" data-at="0.15">&gt; fc.utm --ask</div>
+    <div class="q"><span data-type="0.5" data-cps="24">Where does Malaysia’s tech talent begin?</span><span class="cursor" id="cur1"></span></div>
+  </section>
+
+  <!-- 2 · title 4–10 -->
+  <section class="scene" id="title" data-in="4" data-out="9.7">
+    <div class="label" data-a="up" data-at="4.1">Welcome to the</div>
+    <h1 style="margin-top:30px">
+      <span class="mask"><span data-a="mask" data-at="4.2">Faculty</span></span>
+      <span class="mask"><span data-a="mask" data-at="4.4" class="gold">of</span></span>
+      <span class="mask"><span data-a="mask" data-at="4.6">Computing</span></span>
+    </h1>
+    <div class="rule" data-a="grow" data-at="5.4"></div>
+    <div class="uni" data-a="up" data-at="5.7">Universiti Teknologi Malaysia</div>
+    <div class="mono loc" data-a="up" data-at="6.1">JOHOR BAHRU · MALAYSIA</div>
+  </section>
+
+  <!-- 3 · story 10–18 -->
+  <section class="scene" id="story" data-in="10" data-out="17.7">
+    <div class="label" data-a="up" data-at="10.1">Our story starts in</div>
+    <div class="year" id="year" data-a="up" data-at="10.2">1981</div>
+    <div class="lead" data-a="up" data-at="11.8">A pioneer of computing education in Malaysia.</div>
+    <div class="tl">
+      <div data-a="left" data-at="13.0"><b>1981</b>Department of Computer Science</div>
+      <div data-a="left" data-at="14.0"><b>1995</b>Home on the Skudai main campus</div>
+      <div data-a="left" data-at="15.0"><b>2013</b>Renamed Faculty of Computing</div>
+    </div>
+  </section>
+
+  <!-- 4 · programmes 18–32 -->
+  <section class="scene" id="prog" data-in="18" data-out="31.7">
+    <div class="label" data-a="up" data-at="18.1">Undergraduate programmes</div>
+    <h2><span class="mask"><span data-a="mask" data-at="18.2">Choose</span></span><span class="mask"><span data-a="mask" data-at="18.4" class="gold">your path.</span></span></h2>
+    <div class="rows">
+      <div class="row" data-a="up" data-at="20.0"><i class="hl" data-hl="20.0,22.4"></i><span class="n">01</span><div class="t">Software Engineering</div><div class="d">Build software at scale</div></div>
+      <div class="row" data-a="up" data-at="22.4"><i class="hl" data-hl="22.4,24.8"></i><span class="n">02</span><div class="t">Data Engineering</div><div class="d">Pipelines, platforms, big data</div></div>
+      <div class="row" data-a="up" data-at="24.8"><i class="hl" data-hl="24.8,27.2"></i><span class="n">03</span><div class="t">Computer Networks &amp; Security</div><div class="d">Defend what connects us</div></div>
+      <div class="row" data-a="up" data-at="27.2"><i class="hl" data-hl="27.2,29.6"></i><span class="n">04</span><div class="t">Graphics &amp; Multimedia Software</div><div class="d">Games, simulation, VR</div></div>
+      <div class="row" data-a="up" data-at="29.6"><i class="hl" data-hl="29.6,32"></i><span class="n">05</span><div class="t">Data Science</div><div class="d">Intelligent analytics</div></div>
+    </div>
+  </section>
+
+  <!-- 5 · stats 32–41 (music drop at 32) -->
+  <section class="scene stat" data-in="32" data-out="34.8" data-fast>
+    <div class="label" data-a="up" data-at="32.0">World ranking</div>
+    <div class="big" data-a="pop" data-at="32.0">#<span data-count="32.0,0.9,400,130"></span></div>
+    <div class="what" data-a="up" data-at="32.7">in the world for Computer Science &amp; Information Systems</div>
+    <div class="mono src" data-a="up" data-at="33.1">QS WORLD UNIVERSITY RANKINGS<br>BY SUBJECT 2026</div>
+  </section>
+  <section class="scene stat" data-in="35" data-out="37.8" data-fast>
+    <div class="label" data-a="up" data-at="35.0">The university</div>
+    <div class="big" data-a="pop" data-at="35.0">#<span data-count="35.0,0.9,500,153"></span></div>
+    <div class="what" data-a="up" data-at="35.7">UTM among the world’s universities</div>
+    <div class="mono src" data-a="up" data-at="36.1">QS WORLD UNIVERSITY RANKINGS 2026</div>
+  </section>
+  <section class="scene stat" data-in="38" data-out="40.8" data-fast>
+    <div class="label" data-a="up" data-at="38.0">After graduation</div>
+    <div class="big" style="font-size:330px" data-a="pop" data-at="38.0"><span data-count="38.0,0.9,0,100"></span>%</div>
+    <div class="what" data-a="up" data-at="38.7">graduate employability</div>
+    <div class="mono src" data-a="up" data-at="39.1">CLASS OF 2024 · AS REPORTED BY THE FACULTY</div>
+  </section>
+
+  <!-- 6 · departments 41–47 -->
+  <section class="scene" id="dept" data-in="41" data-out="46.8" data-fast>
+    <div class="label" data-a="up" data-at="41.0">One faculty</div>
+    <h2><span class="mask"><span data-a="mask" data-at="41.05" class="gold">Four</span></span><span class="mask"><span data-a="mask" data-at="41.2">departments.</span></span></h2>
+    <div class="grid">
+      <div class="card" data-a="pop" data-at="42.0"><span class="k">01</span><span class="v">Computer Science</span></div>
+      <div class="card" data-a="pop" data-at="42.5"><span class="k">02</span><span class="v">Software Engineering</span></div>
+      <div class="card" data-a="pop" data-at="43.0"><span class="k">03</span><span class="v">Applied Computing &amp; AI</span></div>
+      <div class="card" data-a="pop" data-at="43.5"><span class="k">04</span><span class="v">Emergent Computing</span></div>
+    </div>
+  </section>
+
+  <!-- 7 · slams 47–51 -->
+  <section class="scene slam" data-in="47" data-out="48" data-cut><span data-a="pop" data-at="47">Code.</span></section>
+  <section class="scene slam inv" data-in="48" data-out="49" data-cut><span data-a="pop" data-at="48">Secure.</span></section>
+  <section class="scene slam mar" data-in="49" data-out="50" data-cut><span data-a="pop" data-at="49">Analyse.</span></section>
+  <section class="scene slam inv" data-in="50" data-out="51" data-cut><span data-a="pop" data-at="50">Create.</span></section>
+
+  <!-- 8 · payoff 51–56 -->
+  <section class="scene" id="payoff" data-in="51" data-out="55.8" data-fast>
+    <h2>
+      <span class="mask"><span data-a="mask" data-at="51.0">Your</span></span>
+      <span class="mask"><span data-a="mask" data-at="51.15">future</span></span>
+      <span class="mask"><span data-a="mask" data-at="51.3" class="gold">compiles</span></span>
+      <span class="mask"><span data-a="mask" data-at="51.45" class="gold">here.</span></span>
+    </h2>
+    <div class="mono ok"><span data-type="52.6" data-cps="30">&gt; build succeeded ✓</span></div>
+  </section>
+
+  <!-- 9 · end card 56–60 -->
+  <section class="scene" id="end" data-in="56" data-out="60.5">
+    <div class="fc">
+      <span class="mask"><span data-a="mask" data-at="56.1">Faculty of</span></span>
+      <span class="mask"><span data-a="mask" data-at="56.25">Computing</span></span>
+    </div>
+    <div class="rule" data-a="grow" data-at="56.7"></div>
+    <div class="uni" data-a="up" data-at="56.9">Universiti Teknologi Malaysia</div>
+    <div class="tagline" data-a="up" data-at="57.1">Inspiring digital talents.</div>
+    <div class="url" data-a="pop" data-at="57.5">comp.utm.my</div>
+  </section>
+
+  <div id="flash"></div>
+
+  <div id="chrome">
+    <div id="segs"></div>
+    <div id="tag"><span>FC · UTM</span><span id="tc">00:00</span></div>
+  </div>
+  <div id="fade"></div>
+</div>
+
+<script>
+const DUR = 60;
+const OUT = 'cubic-bezier(.16,1,.3,1)';   // expo-out
+const IN  = 'cubic-bezier(.7,0,.84,0)';
+const updaters = [];
+const anims = [];
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const easeOut = x => 1 - Math.pow(1 - clamp(x), 4);
+
+// One WAAPI animation per element spanning the whole reel, so in/out never fight.
+function track(el, frames) {
+  frames.sort((a, b) => a.t - b.t);
+  const kfs = frames.map(f => ({ ...f.p, offset: clamp(f.t / DUR), easing: f.e || 'linear' }));
+  if (kfs[0].offset > 0) kfs.unshift({ ...frames[0].p, offset: 0 });
+  if (kfs[kfs.length - 1].offset < 1) kfs.push({ ...frames[frames.length - 1].p, offset: 1 });
+  const a = el.animate(kfs, { duration: DUR * 1000, fill: 'both' });
+  a.pause(); anims.push(a);
+}
+
+const FROM = {
+  up:   { opacity: 0, transform: 'translateY(70px)' },
+  left: { opacity: 0, transform: 'translateX(-70px)' },
+  mask: { opacity: 1, transform: 'translateY(108%)' },
+  pop:  { opacity: 0, transform: 'scale(.72)' },
+  grow: { opacity: 1, transform: 'scaleX(0)' },
+};
+const TO = { opacity: 1, transform: 'none' };
+
+document.querySelectorAll('.scene').forEach(s => {
+  const tin = +s.dataset.in, tout = +s.dataset.out;
+  const cut = 'cut' in s.dataset, fast = 'fast' in s.dataset;
+  const din = cut || fast ? 0.001 : 0.3, dout = cut ? 0.001 : 0.28;
+  track(s, [
+    { t: tin, p: { opacity: 0, transform: 'none' } },
+    { t: tin + din, p: { opacity: 1, transform: 'none' } },
+    { t: tout, p: { opacity: 1, transform: 'none' }, e: IN },
+    { t: tout + dout, p: { opacity: 0, transform: cut ? 'none' : 'translateY(-60px)' } },
+  ]);
+});
+document.querySelectorAll('[data-a]').forEach(el => {
+  const t = +el.dataset.at, kind = el.dataset.a;
+  const d = kind === 'pop' ? 0.45 : kind === 'mask' ? 0.8 : 0.7;
+  track(el, [{ t, p: FROM[kind], e: OUT }, { t: t + d, p: TO }]);
+});
+document.querySelectorAll('[data-hl]').forEach(el => {
+  const [a, b] = el.dataset.hl.split(',').map(Number);
+  track(el, [
+    { t: a, p: { opacity: 0 } }, { t: a + 0.25, p: { opacity: 1 } },
+    { t: b - 0.05, p: { opacity: 1 } }, { t: b + 0.3, p: { opacity: b >= 32 ? 1 : 0 } },
+  ]);
+});
+
+// typing
+document.querySelectorAll('[data-type]').forEach(el => {
+  const full = el.textContent, t0 = +el.dataset.type, cps = +el.dataset.cps;
+  updaters.push(t => { el.textContent = full.slice(0, Math.floor(clamp((t - t0) * cps, 0, full.length))); });
+});
+const cur1 = document.getElementById('cur1');
+updaters.push(t => { cur1.style.opacity = (t < 2.3 || Math.floor(t * 2.5) % 2 === 0) ? 1 : 0; });
+
+// counters: start, duration, from, to
+document.querySelectorAll('[data-count]').forEach(el => {
+  const [t0, d, a, b] = el.dataset.count.split(',').map(Number);
+  updaters.push(t => { el.textContent = Math.round(a + (b - a) * easeOut((t - t0) / d)); });
+});
+const year = document.getElementById('year');
+updaters.push(t => { year.textContent = Math.round(2026 + (1981 - 2026) * easeOut((t - 10.2) / 1.5)); });
+
+// chrome
+const cuts = [0, 4, 10, 18, 32, 41, 47, 51, 56, 60];
+const segs = document.getElementById('segs');
+const bars = cuts.slice(1).map(() => { const i = document.createElement('i'), b = document.createElement('b'); i.appendChild(b); segs.appendChild(i); return b; });
+const tc = document.getElementById('tc');
+updaters.push(t => {
+  bars.forEach((b, i) => { b.style.width = clamp((t - cuts[i]) / (cuts[i + 1] - cuts[i])) * 100 + '%'; });
+  const s = Math.min(59, Math.floor(t));
+  tc.textContent = '00:' + String(s).padStart(2, '0');
+});
+
+// flashes on hard cuts, final fade
+const flash = document.getElementById('flash'), fade = document.getElementById('fade');
+const hits = [4, 10, 18, 32, 35, 38, 41, 51, 56];
+updaters.push(t => {
+  let f = 0;
+  for (const h of hits) if (t >= h) f = Math.max(f, Math.exp(-(t - h) * 9) * (h >= 32 && h < 56 ? 0.55 : 0.3));
+  flash.style.opacity = f;
+  fade.style.opacity = clamp((t - 59.2) / 0.7);
+});
+
+// background: drifting node network + glow that pulses on the beat (120 bpm)
+const cv = document.getElementById('bg'), cx = cv.getContext('2d');
+let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+const nodes = Array.from({ length: 46 }, () => ({ x: rnd() * 1080, y: rnd() * 1920, a: rnd() * 6.28, s: 8 + rnd() * 16, r: 2 + rnd() * 4, p: rnd() * 6.28 }));
+function drawBg(t) {
+  const energy = t < 16 ? 0.35 : t < 32 ? 0.35 + 0.3 * (t - 16) / 16 : t < 56 ? 1 : Math.max(0.3, 1 - (t - 56) / 2);
+  const beat = Math.exp(-((t % 0.5)) * 7) * energy;
+  cx.fillStyle = '#12050a'; cx.fillRect(0, 0, 1080, 1920);
+  const gx = 540 + Math.sin(t * 0.21) * 380, gy = 760 + Math.cos(t * 0.17) * 520;
+  let g = cx.createRadialGradient(gx, gy, 0, gx, gy, 1150);
+  g.addColorStop(0, `rgba(140,22,56,${0.55 + 0.25 * beat})`); g.addColorStop(1, 'rgba(140,22,56,0)');
+  cx.fillStyle = g; cx.fillRect(0, 0, 1080, 1920);
+  const hx = 540 - Math.sin(t * 0.13) * 420, hy = 1500 + Math.sin(t * 0.19) * 300;
+  g = cx.createRadialGradient(hx, hy, 0, hx, hy, 700);
+  g.addColorStop(0, `rgba(244,185,66,${0.10 + 0.10 * beat})`); g.addColorStop(1, 'rgba(244,185,66,0)');
+  cx.fillStyle = g; cx.fillRect(0, 0, 1080, 1920);
+
+  const P = nodes.map(n => ({
+    x: ((n.x + Math.cos(n.a) * n.s * t) % 1080 + 1080) % 1080,
+    y: ((n.y + Math.sin(n.a) * n.s * t) % 1920 + 1920) % 1920,
+    r: n.r, p: n.p,
+  }));
+  cx.lineWidth = 1.5;
+  for (let i = 0; i < P.length; i++) for (let j = i + 1; j < P.length; j++) {
+    const dx = P[i].x - P[j].x, dy = P[i].y - P[j].y, d = Math.hypot(dx, dy);
+    if (d < 300) {
+      cx.strokeStyle = `rgba(244,185,66,${(1 - d / 300) * (0.10 + 0.14 * energy)})`;
+      cx.beginPath(); cx.moveTo(P[i].x, P[i].y); cx.lineTo(P[j].x, P[j].y); cx.stroke();
+    }
+  }
+  for (const p of P) {
+    cx.fillStyle = `rgba(251,241,227,${0.18 + 0.22 * (0.5 + 0.5 * Math.sin(t * 1.3 + p.p))})`;
+    cx.beginPath(); cx.arc(p.x, p.y, p.r * (1 + 0.5 * beat), 0, 6.283); cx.fill();
+  }
+}
+updaters.push(drawBg);
+
+window.seek = t => { for (const a of anims) a.currentTime = t * 1000; for (const u of updaters) u(t); };
+window.ready = document.fonts.ready.then(() => { seek(0); return true; });
+
+// live preview when opened directly in a browser (not driven by the renderer)
+if (!navigator.webdriver) {
+  const q = new URLSearchParams(location.search);
+  if (q.has('t')) window.ready.then(() => seek(+q.get('t')));
+  else { const t0 = performance.now(); (function loop() { seek(((performance.now() - t0) / 1000) % DUR); requestAnimationFrame(loop); })(); }
+}
+</script>
+</body>
+</html>
